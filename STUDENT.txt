@@ -1,0 +1,95 @@
+Nama: Ali Arrasyid
+Email: aliarrasyid7@gmail.com
+
+Project: Galeri Cerita Perjalanan
+
+============================
+Fitur Wajib yang Diterapkan:
+============================
+
+Proyek Pertama:
+
+✅ Menggunakan Story API (https://story-api.dicoding.dev/v1/) sebagai sumber data utama.
+
+✅ Menerapkan arsitektur Single Page Application (SPA) berbasis hash routing (contoh: #/add, #/login).
+
+✅ Menerapkan pola Model-View-Presenter (MVP):
+  - View: Menyusun antarmuka pengguna (seperti `add-page.js`, `home-page.js`)
+  - Presenter: Menyambungkan View dan Model serta mengelola logika aplikasi (seperti `add-presenter.js`, `home-presenter.js`)
+  - Model: Mengakses data melalui `story-api.js`
+
+✅ Menampilkan data cerita dalam bentuk daftar lengkap dengan:
+  - Gambar (`photoUrl`)
+  - Deskripsi (`description`)
+  - Waktu pembuatan (`createdAt`)
+  - Marker di peta digital berdasarkan koordinat `lat` dan `lon`
+
+✅ Halaman Tambah Cerita Baru:
+  - Menggunakan kamera untuk ambil gambar (via WebRTC API)
+  - Memilih lokasi di peta digital dan menampilkan koordinat (latitude dan longitude)
+  - Menyertakan deskripsi dan mengirimkan data ke API
+
+✅ Kamera otomatis nonaktif saat user berpindah halaman dari "Tambah Cerita" (menggunakan `stopKamera()` dan `hashchange` listener)
+
+✅ Menggunakan View Transition API untuk transisi antar halaman yang halus.
+
+Proyek Kedua/Akhir:
+
+✅ Mempertahankan Seluruh Kriteria Wajib Submission Sebelumnya
+
+✅ Menerapkan Push Notification
+
+❌ Mengadopsi PWA (Installable & Offline)
+
+✅ Memanfaatkan IndexedDB untuk Menyimpan Data
+
+✅ Distribusikan secara Publik
+  - Link GitHub: https://github.com/Ali2068/Story-App-Dicoding/
+
+==========================
+Fitur Opsional yang Ditambahkan:
+==========================
+
+Proyek Pertama:
+
+✨ Tampilan mobile-friendly (responsive layout)
+
+✨ Kontrol Layer Map:
+  - Peta Streets
+  - Peta Topographic
+  - Disediakan melalui MapTiler + Leaflet layer control
+
+✨ Aksesibilitas:
+  - Tombol "Lewati ke Konten Utama" (Skip to content) berfungsi dengan benar tanpa memicu hashchange/404
+  - Semua elemen form memiliki label yang sesuai
+  - Struktur HTML menggunakan elemen semantic (main, header, nav, section, footer)
+
+✨ Ikon marker Leaflet ditampilkan secara benar (icon fix melalui import manual `marker-icon.png` dan `marker-shadow.png`)
+
+✨ Menu navigasi menyesuaikan status login (opsional):
+  - Tombol daftar/login disembunyikan saat sudah login
+
+Proyek Kedua/Akhir:
+
+✨/❌ Memiliki Shortcuts dan Screenshots untuk Desktop dan Mobile (gambar untuk shortcut dan screenshots sudah tersedia tapi belum bisa
+diterapkan)
+
+✨ Menggunakan Workbox untuk Offline Capability
+
+❌ Menyediakan Halaman Not Found
+
+=====================
+API Key yang Digunakan:
+=====================
+
+Map Service: MapTiler  
+API Key: EfFI5S58oabOINQgUA1h
+
+=====================
+Catatan Tambahan:
+=====================
+
+- Token disimpan menggunakan `localStorage` dan dikelola melalui `auth.js`
+- Semua halaman menggunakan SPA routing berbasis hash (`#/home`, `#/add`, dll)
+- File telah dibundling menggunakan Webpack (`npm run build`)
+- Folder `dist/` dan `STUDENT.txt` sudah disiapkan untuk submission
