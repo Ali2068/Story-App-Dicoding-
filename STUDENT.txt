@@ -39,12 +39,12 @@ Proyek Kedua/Akhir:
 
 ✅ Menerapkan Push Notification
 
-❌ Mengadopsi PWA (Installable & Offline)
+✅ Mengadopsi PWA (Installable & Offline)
 
 ✅ Memanfaatkan IndexedDB untuk Menyimpan Data
 
 ✅ Distribusikan secara Publik
-  - Link GitHub: https://github.com/Ali2068/Story-App-Dicoding/
+  - Link GitHub: https://ali2068.github.io/Story-App-Dicoding-
 
 ==========================
 Fitur Opsional yang Ditambahkan:
