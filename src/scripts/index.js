@@ -8,6 +8,8 @@ import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { subscribePush } from './utils/push-notification';
 import NotificationHelper from './utils/notification';
 
+import FavoritePage from './pages/favorite/favorite-page.js';
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,
@@ -161,5 +163,9 @@ if ('Notification' in window && 'serviceWorker' in navigator) {
     .then(() => NotificationHelper.subscribeToPush())
     .catch((err) => console.error('SW/Push Notification gagal:', err));
 }
+
+case 'favorite':
+  renderPage(FavoritePage);
+  break;
 
 }

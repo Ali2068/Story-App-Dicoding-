@@ -74,11 +74,4 @@ const addStory = async (formData, token) => {
   return response.json();
 };
 
-export const getVapidKey = async () => {
-  const response = await fetch(`${BASE_URL}/push/web`);
-  if (!response.ok) throw new Error('Gagal mengambil VAPID key');
-  const data = await response.json();
-  return data.vapidKey;
-};
-
 export { registerUser, loginUser, getStories, addStory };

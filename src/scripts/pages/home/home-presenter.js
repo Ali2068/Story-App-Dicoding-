@@ -41,6 +41,15 @@ const HomePresenter = {
           .bindPopup(`<b>${story.name}</b><br>${story.description}`);
       }
     });
+
+      const favBtn = document.createElement('button');
+      favBtn.textContent = 'Simpan';
+      favBtn.addEventListener('click', async () => {
+        await IdbFavorite.put(story);
+        alert('Cerita disimpan ke favorit!');
+      });
+      item.appendChild(favBtn);
+
   }
 };
 

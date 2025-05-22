@@ -15,9 +15,3 @@ export const subscribePush = async () => {
   console.log('Push Subscription:', subscription);
   alert('Notifikasi berhasil diaktifkan!');
 };
-
-const getVapidPublicKey = async () => {
-  const res = await fetch('https://story-api.dicoding.dev/v1/push/web');
-  const data = await res.json();
-  return data.vapidPublicKey;
-};
