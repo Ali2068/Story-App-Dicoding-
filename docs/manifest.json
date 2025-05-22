@@ -30,12 +30,12 @@
   ],
   "screenshots": [
     {
-      "src": "images/screenshot-desktop.png",
+      "src": "icons/screenshot-desktop.png",
       "type": "image/png",
       "sizes": "1280x720"
     },
     {
-      "src": "images/screenshot-mobile.png",
+      "src": "icons/screenshot-mobile.png",
       "type": "image/png",
       "sizes": "360x640"
     }

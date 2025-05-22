@@ -1,14 +1,20 @@
+import '../styles/main.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+import HomePage from './pages/home/home-page.js';
+import AddPage from './pages/add/add-page.js';
+import AboutPage from './pages/about/about-page.js';
+import LoginPage from './pages/login/login-page.js';
+import RegisterPage from './pages/register/register-page.js';
+import FavoritePage from './pages/favorite/favorite-page.js';
+
+import { isLoggedIn, removeUserToken } from './utils/auth.js';
+import NotificationHelper from './utils/notification.js';
 
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import marker2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-import { subscribePush } from './utils/push-notification';
-import NotificationHelper from './utils/notification';
-
-import FavoritePage from './pages/favorite/favorite-page.js';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -17,19 +23,9 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Import halaman
-import HomePage from './pages/home/home-page.js';
-import AddPage from './pages/add/add-page.js';
-import AboutPage from './pages/about/about-page.js';
-import LoginPage from './pages/login/login-page.js';
-import RegisterPage from './pages/register/register-page.js'; // kalau ada
-import { isLoggedIn, removeUserToken } from './utils/auth.js';
-import '../styles/main.css';
-
-// Fungsi render dinamis
+// 🔁 Routing function
 async function renderPage(pageModule) {
   const main = document.querySelector('main');
-
   if (document.startViewTransition) {
     document.startViewTransition(async () => {
       main.innerHTML = await pageModule.render();
@@ -41,6 +37,7 @@ async function renderPage(pageModule) {
   }
 }
 
+// 📍 Router
 function router() {
   const path = window.location.hash.slice(1).toLowerCase() || '/';
 
@@ -71,11 +68,15 @@ function router() {
     case 'register':
       renderPage(RegisterPage);
       break;
+    case 'favorite':
+      renderPage(FavoritePage);
+      break;
     default:
       renderNotFound();
   }
 }
 
+// 📄 Not Found
 function renderNotFound() {
   const main = document.querySelector('main');
   main.innerHTML = `
@@ -86,19 +87,39 @@ function renderNotFound() {
   `;
 }
 
+// 🧠 Auth & Navigasi
+function updateAuthButtons() {
+  const loginBtn = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const daftarLink = document.getElementById('daftarLink');
+  const favLink = document.getElementById('favLink');
+
+  if (isLoggedIn()) {
+    loginBtn?.style.setProperty('display', 'none');
+    logoutBtn?.style.setProperty('display', 'inline-block');
+    daftarLink?.style.setProperty('display', 'none');
+    favLink?.style.setProperty('display', 'inline');
+  } else {
+    loginBtn?.style.setProperty('display', 'inline-block');
+    logoutBtn?.style.setProperty('display', 'none');
+    daftarLink?.style.setProperty('display', 'inline');
+    favLink?.style.setProperty('display', 'none');
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  // 🔗 Skip to Content fix
   const skipLink = document.querySelector('.skip-link');
-  skipLink.addEventListener('click', (e) => {
+  skipLink?.addEventListener('click', (e) => {
     e.preventDefault();
     const mainContent = document.getElementById('mainContent');
-    mainContent.setAttribute('tabindex', '-1');
-    mainContent.focus();
+    mainContent?.setAttribute('tabindex', '-1');
+    mainContent?.focus();
   });
 
-  updateAuthButtons();
-
+  // 🔒 Logout handler
   const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', (e) => {
+  logoutBtn?.addEventListener('click', (e) => {
     e.preventDefault();
     removeUserToken();
     alert('Berhasil logout!');
@@ -106,66 +127,22 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAuthButtons();
   });
 
+  // 🔔 Notifikasi Push
   const notifBtn = document.getElementById('notifBtn');
-  if (notifBtn) {
-    notifBtn.addEventListener('click', subscribePush);
-  }
-});
-
-function updateAuthButtons() {
-  const loginBtn = document.getElementById('loginBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (!loginBtn || !logoutBtn) return;
-
-  if (isLoggedIn()) {
-    loginBtn.style.display = 'none';
-    logoutBtn.style.display = 'inline-block';
-  } else {
-    loginBtn.style.display = 'inline-block';
-    logoutBtn.style.display = 'none';
-  }
-
-  const daftarLink = document.getElementById('daftarLink');
-  if (isLoggedIn()) {
-    if (daftarLink) daftarLink.style.display = 'none';
-  } else {
-    if (daftarLink) daftarLink.style.display = 'inline';
-  }
-}
-
-window.updateAuthButtons = updateAuthButtons;
-window.addEventListener('hashchange', router);
-window.addEventListener('load', router);
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('Service Worker terdaftar:', reg))
-      .catch(err => console.error('SW gagal:', err));
-  });
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
+  notifBtn?.addEventListener('click', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('/service-worker.js');
-      console.log('SW registered:', reg);
-
       await NotificationHelper.requestPermission();
       await NotificationHelper.subscribeToPush();
+      alert('Notifikasi diaktifkan!');
     } catch (err) {
-      console.error('SW/Push Notification gagal:', err);
+      alert('Gagal mengaktifkan notifikasi: ' + err.message);
     }
   });
 
-if ('Notification' in window && 'serviceWorker' in navigator) {
-  NotificationHelper.requestPermission()
-    .then(() => NotificationHelper.subscribeToPush())
-    .catch((err) => console.error('SW/Push Notification gagal:', err));
-}
+  updateAuthButtons();
+});
 
-case 'favorite':
-  renderPage(FavoritePage);
-  break;
-
-}
+// 🧭 Event Routing
+window.updateAuthButtons = updateAuthButtons;
+window.addEventListener('hashchange', router);
+window.addEventListener('load', router);

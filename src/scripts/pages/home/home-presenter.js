@@ -1,5 +1,6 @@
 import { getStories } from '../../services/story-api';
 import { IdbStory } from '../../utils/idb';
+import IdbFavorite from '../../utils/idb-favorite';
 import L from 'leaflet';
 
 const HomePresenter = {
@@ -11,20 +12,25 @@ const HomePresenter = {
       attribution: 'Map data &copy; OpenStreetMap contributors',
     }).addTo(map);
 
-    let stories = [];
-
+    let storiesList = [];
     try {
-      stories = await getStories();
+      const fetched = await getStories();
+      storiesList = fetched;
       await IdbStory.clear();
-      stories.forEach((story) => IdbStory.put(story));
+      fetched.forEach((story) => IdbStory.put(story));
     } catch (err) {
-      console.warn('Fetch gagal, ambil dari IndexedDB:', err.message);
-      stories = await IdbStory.getAll();
+      console.warn('Gagal fetch cerita, ambil dari cache:', err.message);
+      storiesList = await IdbStory.getAll();
     }
 
-    container.innerHTML = '';
+    if (storiesList.length === 0) {
+      container.innerHTML = '<p>Belum ada cerita tersedia.</p>';
+      return;
+    }
 
-    stories.forEach((story) => {
+    container.innerHTML = ''; // clear container
+
+    storiesList.forEach((story) => {
       const item = document.createElement('div');
       item.classList.add('story-item');
       item.innerHTML = `
@@ -32,6 +38,7 @@ const HomePresenter = {
         <h3>${story.name}</h3>
         <p>${story.description}</p>
         <p><small>Dibuat pada: ${new Date(story.createdAt).toLocaleString()}</small></p>
+        <button class="fav-btn" data-id="${story.id}">❤️ Simpan</button>
       `;
       container.appendChild(item);
 
@@ -42,14 +49,17 @@ const HomePresenter = {
       }
     });
 
-      const favBtn = document.createElement('button');
-      favBtn.textContent = 'Simpan';
-      favBtn.addEventListener('click', async () => {
-        await IdbFavorite.put(story);
-        alert('Cerita disimpan ke favorit!');
+    // Event tombol favorit
+    document.querySelectorAll('.fav-btn').forEach((btn) => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.target.dataset.id;
+        const selectedStory = storiesList.find((s) => s.id === id);
+        if (selectedStory) {
+          await IdbFavorite.put(selectedStory);
+          alert('Ditambahkan ke favorit!');
+        }
       });
-      item.appendChild(favBtn);
-
+    });
   }
 };
 

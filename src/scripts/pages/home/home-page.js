@@ -10,9 +10,9 @@ const HomePage = {
       </section>
     `;
   },
-
+  
   async afterRender() {
-    HomePresenter.showStories();
+    await HomePresenter.showStories();
   }
 };
 
