@@ -138,8 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Gagal mengaktifkan notifikasi: ' + err.message);
     }
   });
-
-  updateAuthButtons();
 });
 
 // 🧭 Event Routing
