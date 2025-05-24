@@ -129,17 +129,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 🔔 Notifikasi Push
   const notifBtn = document.getElementById('notifBtn');
-  if (notifBtn) {
-    notifBtn.addEventListener('click', async () => {
-      try {
-        await NotificationHelper.requestPermission();
-        await NotificationHelper.subscribeToPush();
-        alert('Notifikasi berhasil diaktifkan!');
-      } catch (err) {
-        alert('Gagal mengaktifkan notifikasi.');
-        console.error('Notifikasi gagal:', err);
-      }
-    });
+    if (notifBtn) {
+      notifBtn?.addEventListener('click', async () => {
+    try {
+      await NotificationHelper.subscribeToPush();
+      alert('Notifikasi berhasil diaktifkan!');
+    } catch (err) {
+      alert(`Gagal mengaktifkan notifikasi: ${err.message}`);
+    }
+  });
   };
 });
 
