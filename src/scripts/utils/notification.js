@@ -19,6 +19,11 @@ async function sendSubscriptionToServer(subscription) {
 }
 
 const NotificationHelper = {
+  async requestPermission() {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') throw new Error('Izin notifikasi ditolak');
+  },
+
   async subscribeToPush() {
     const reg = await navigator.serviceWorker.ready;
 
@@ -33,10 +38,10 @@ const NotificationHelper = {
         applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
       });
 
-    console.log('✅ Berhasil subscribe:', JSON.stringify(sub));
+      console.log('✅ Berhasil subscribe:', JSON.stringify(sub));
 
-    // ✅ Kirim ke server
-    await sendSubscriptionToServer(sub);
+      // ✅ Kirim ke server
+      await sendSubscriptionToServer(sub);
       console.log('✅ Subscription dikirim ke server!');
     } catch (err) {
       console.error('❌ Gagal subscribe push:', err.message);
