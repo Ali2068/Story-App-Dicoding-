@@ -1,11 +1,24 @@
 const PUBLIC_VAPID_KEY = 'BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk';
+import { getUserToken } from '../utils/auth';
+
+async function sendSubscriptionToServer(subscription) {
+  const token = getUserToken();
+  const response = await fetch('https://story-api.dicoding.dev/v1/push/web', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ subscription }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(err.message || 'Gagal mengirim subscription');
+  }
+}
 
 const NotificationHelper = {
-  async requestPermission() {
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') throw new Error('Izin notifikasi ditolak');
-  },
-
   async subscribeToPush() {
     const reg = await navigator.serviceWorker.ready;
 
@@ -20,7 +33,11 @@ const NotificationHelper = {
         applicationServerKey: urlBase64ToUint8Array(PUBLIC_VAPID_KEY),
       });
 
-      console.log('✅ Berhasil subscribe:', JSON.stringify(sub));
+    console.log('✅ Berhasil subscribe:', JSON.stringify(sub));
+
+    // ✅ Kirim ke server
+    await sendSubscriptionToServer(sub);
+      console.log('✅ Subscription dikirim ke server!');
     } catch (err) {
       console.error('❌ Gagal subscribe push:', err.message);
     }

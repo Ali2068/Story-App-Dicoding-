@@ -129,15 +129,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // 🔔 Notifikasi Push
   const notifBtn = document.getElementById('notifBtn');
-  notifBtn?.addEventListener('click', async () => {
-    try {
-      await NotificationHelper.requestPermission();
-      await NotificationHelper.subscribeToPush();
-      alert('Notifikasi diaktifkan!');
-    } catch (err) {
-      alert('Gagal mengaktifkan notifikasi: ' + err.message);
-    }
-  });
+  if (notifBtn) {
+    notifBtn.addEventListener('click', async () => {
+      try {
+        await NotificationHelper.requestPermission();
+        await NotificationHelper.subscribeToPush();
+        alert('Notifikasi berhasil diaktifkan!');
+      } catch (err) {
+        alert('Gagal mengaktifkan notifikasi.');
+        console.error('Notifikasi gagal:', err);
+      }
+    });
+  };
 });
 
 // 🧭 Event Routing
