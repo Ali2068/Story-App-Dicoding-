@@ -1,1 +1,70 @@
-if(!self.define){let e,i={};const n=(n,s)=>(n=new URL(n+".js",s).href,i[n]||new Promise((i=>{if("document"in self){const e=document.createElement("script");e.src=n,e.onload=i,document.head.appendChild(e)}else e=n,importScripts(n),i()})).then((()=>{let e=i[n];if(!e)throw new Error(`Module ${n} didn’t register its module`);return e})));self.define=(s,r)=>{const c=e||("document"in self?document.currentScript.src:"")||location.href;if(i[c])return;let o={};const l=e=>n(e,c),t={module:{uri:c},exports:o,require:l};i[c]=Promise.all(s.map((e=>t[e]||l(e)))).then((e=>(r(...e),o)))}}define(["./workbox-fd2bad41"],(function(e){"use strict";self.skipWaiting(),e.clientsClaim(),e.precacheAndRoute([{url:"app.bundle.js",revision:"113e6a5e990711a44ff512bac4fb8e34"},{url:"app.bundle.js.LICENSE.txt",revision:"a09afd57099dc21e9263ff61a08dff24"},{url:"images/2b3e1faf89f94a483539.png",revision:null},{url:"images/416d91365b44e4b4f477.png",revision:null},{url:"images/680f69f3c2e6b90c1812.png",revision:null},{url:"images/8f2c4d11474275fbc161.png",revision:null},{url:"images/a0c6cc1401c107b501ef.png",revision:null},{url:"index.html",revision:"a3a0dc9cd31c398719d946f938cb75a6"},{url:"main.css",revision:"3844048f3c9ddb8455dedc9ca60567e9"}],{}),e.registerRoute(/\.(?:png|jpg|jpeg|svg|gif|webp)$/,new e.CacheFirst({cacheName:"images",plugins:[new e.ExpirationPlugin({maxEntries:60,maxAgeSeconds:2592e3})]}),"GET"),e.registerRoute(/^https:\/\/story-api\.dicoding\.dev\/v1\/stories/,new e.NetworkFirst({cacheName:"stories-api",plugins:[new e.ExpirationPlugin({maxEntries:50,maxAgeSeconds:86400})]}),"GET")}));
+self.addEventListener('push', function (event) {
+  let data = {};
+
+  if (event.data) {
+    data = event.data.json();
+  }
+
+  const title = data.title || 'Notifikasi Baru!';
+  const options = {
+    body: data.body || 'Ada cerita baru nih!',
+    icon: 'icons/icon-192.png',
+    image: data.image || undefined,
+    badge: 'icons/icon-192.png',
+    data: {
+      url: data.url || '/',
+    },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function (event) {
+  event.notification.close();
+
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) return client.focus();
+      }
+
+      if (clients.openWindow) {
+        return clients.openWindow(event.notification.data.url);
+      }
+    }),
+  );
+});
+  
+const CACHE_NAME = 'cerita-v1';
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
+  '/app.bundle.js',
+  '/manifest.json',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png'
+];
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+  );
+});
+
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((cached) => cached || fetch(event.request))
+  );
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() || { title: 'Notifikasi', body: 'Ada cerita baru!' };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/icons/icon-192.png',
+    })
+  );
+});
