@@ -137,7 +137,37 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       alert(`Gagal mengaktifkan notifikasi: ${err.message}`);
     }
+    await updateNotifButtons();
   });
+
+  const unsubBtn = document.getElementById('unsubscribeBtn');
+   if (unsubBtn) {
+   unsubBtn.addEventListener('click', async () => {
+     try {
+       await NotificationHelper.unsubscribeFromPush();
+       alert('Notifikasi dinonaktifkan.');
+     } catch (err) {
+       alert('Gagal nonaktifkan notifikasi.');
+      console.error(err.message);
+     }
+     await updateNotifButtons();
+   });
+ }
+
+ // Toggle tombol notifikasi berdasarkan status
+async function updateNotifButtons() {
+  const notifBtn = document.getElementById('notifBtn');
+  const unsubBtn = document.getElementById('unsubscribeBtn');
+
+  const isSubbed = await NotificationHelper.isSubscribed();
+  if (isSubbed) {
+    notifBtn.style.display = 'none';
+    unsubBtn.style.display = 'inline-block';
+  } else {
+    notifBtn.style.display = 'inline-block';
+    unsubBtn.style.display = 'none';
+  }
+}
   };
 });
 
