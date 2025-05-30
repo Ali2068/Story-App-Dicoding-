@@ -108,7 +108,7 @@ function updateAuthButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 🔗 Skip to Content fix
+  // Skip to content
   const skipLink = document.querySelector('.skip-link');
   skipLink?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mainContent?.focus();
   });
 
-  // 🔒 Logout handler
+  // Logout
   const logoutBtn = document.getElementById('logoutBtn');
   logoutBtn?.addEventListener('click', (e) => {
     e.preventDefault();
@@ -125,50 +125,74 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('Berhasil logout!');
     window.location.hash = '/login';
     updateAuthButtons();
+    updateNotifButtons(); // Update tombol notif juga
   });
 
-  // 🔔 Notifikasi Push
-  const notifBtn = document.getElementById('notifBtn');
-    if (notifBtn) {
-      notifBtn?.addEventListener('click', async () => {
-    try {
-      await NotificationHelper.subscribeToPush();
-      alert('Notifikasi berhasil diaktifkan!');
-    } catch (err) {
-      alert(`Gagal mengaktifkan notifikasi: ${err.message}`);
-    }
-    await updateNotifButtons();
-  });
-
-  const unsubBtn = document.getElementById('unsubscribeBtn');
-   if (unsubBtn) {
-   unsubBtn.addEventListener('click', async () => {
-     try {
-       await NotificationHelper.unsubscribeFromPush();
-       alert('Notifikasi dinonaktifkan.');
-     } catch (err) {
-       alert('Gagal nonaktifkan notifikasi.');
-      console.error(err.message);
-     }
-     await updateNotifButtons();
-   });
- }
-
- // Toggle tombol notifikasi berdasarkan status
-async function updateNotifButtons() {
+  // Push Notification
   const notifBtn = document.getElementById('notifBtn');
   const unsubBtn = document.getElementById('unsubscribeBtn');
+  const notifStatus = document.getElementById('notifStatus');
 
-  const isSubbed = await NotificationHelper.isSubscribed();
-  if (isSubbed) {
-    notifBtn.style.display = 'none';
-    unsubBtn.style.display = 'inline-block';
-  } else {
-    notifBtn.style.display = 'inline-block';
-    unsubBtn.style.display = 'none';
+  if (notifBtn) {
+    notifBtn.addEventListener('click', async () => {
+      if (!isLoggedIn()) {
+        alert('Harap login terlebih dahulu untuk mengaktifkan notifikasi');
+        return;
+      }
+
+      try {
+        await NotificationHelper.requestPermission();
+        await NotificationHelper.subscribeToPush();
+        alert('Notifikasi berhasil diaktifkan!');
+      } catch (err) {
+        console.error('❌ Gagal mengaktifkan notifikasi:', err.message);
+        alert('Gagal mengaktifkan notifikasi!');
+      }
+
+      await updateNotifButtons();
+    });
   }
-}
-  };
+
+  if (unsubBtn) {
+    unsubBtn.addEventListener('click', async () => {
+      try {
+        await NotificationHelper.unsubscribeFromPush();
+        alert('Notifikasi berhasil dimatikan!');
+      } catch (err) {
+        console.error('❌ Gagal mematikan notifikasi:', err.message);
+        alert('Gagal mematikan notifikasi.');
+      }
+
+      await updateNotifButtons();
+    });
+  }
+
+  async function updateNotifButtons() {
+    const isSubbed = await NotificationHelper.isSubscribed();
+    const isAuth = isLoggedIn();
+
+    if (!isAuth) {
+      notifBtn.style.display = 'inline-block';
+      notifBtn.disabled = true;
+      unsubBtn.style.display = 'none';
+      notifStatus.textContent = 'Silakan login untuk mengelola notifikasi';
+      return;
+    }
+
+    notifBtn.disabled = false;
+
+    if (isSubbed) {
+      notifBtn.style.display = 'none';
+      unsubBtn.style.display = 'inline-block';
+      notifStatus.textContent = '🔔 Notifikasi aktif';
+    } else {
+      notifBtn.style.display = 'inline-block';
+      unsubBtn.style.display = 'none';
+      notifStatus.textContent = '🔕 Notifikasi nonaktif';
+    }
+  }
+
+  updateNotifButtons();
 });
 
 // 🧭 Event Routing

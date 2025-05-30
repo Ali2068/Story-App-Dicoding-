@@ -3,8 +3,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 
 module.exports = {
   mode: 'production',
@@ -49,6 +49,10 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         { from: 'src/scripts/sw-custom.js', to: 'sw-custom.js' },
+        { from: 'src/public/icons', to: 'icons' },
+        { from: 'src/public/images', to: 'images' },
+        { from: 'src/public/manifest.json', to: 'manifest.json' },
+        { from: 'src/scripts/sw.bundle.js', to: 'sw.bundle.js' },
       ],
     }),
     new WorkboxWebpackPlugin.GenerateSW({
@@ -76,6 +80,14 @@ module.exports = {
               maxEntries: 50,
               maxAgeSeconds: 24 * 60 * 60, // 1 hari
             },
+          },
+        },
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'pages',
+            networkTimeoutSeconds: 10,
           },
         },
       ],
