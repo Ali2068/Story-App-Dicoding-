@@ -193,6 +193,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   updateNotifButtons();
+  
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('/sw.bundle.js')
+      .then(() => console.log('✅ Service Worker registered successfully'))
+      .catch((err) =>
+        console.error('❌ Service Worker registration failed:', err)
+      );
+  }
 });
 
 // 🧭 Event Routing
