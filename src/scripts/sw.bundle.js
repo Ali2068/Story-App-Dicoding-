@@ -34,6 +34,13 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/offline.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request);
@@ -41,6 +48,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+// Handle push notification
 self.addEventListener('push', (event) => {
   const data = event.data?.json() || { title: "Push Notification" };
   self.registration.showNotification(data.title, {

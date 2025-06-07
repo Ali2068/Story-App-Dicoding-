@@ -1,35 +1,51 @@
-self.addEventListener('push', function (event) {
-  let data = {};
-  if (event.data) {
-    data = event.data.json();
-  }
-
-  const title = data.title || 'Notifikasi Baru!';
-  const options = {
-    body: data.body || 'Ada cerita baru nih!',
-    icon: 'icons/icon-192.png',
-    image: data.image || undefined,
-    badge: 'icons/icon-192.png',
-    data: {
-      url: data.url || '/',
-    },
-  };
-
-  event.waitUntil(self.registration.showNotification(title, options));
+self.addEventListener('install', (event) => {
+  console.log('✅ Service Worker installed');
+  self.skipWaiting();
 });
 
-self.addEventListener('notificationclick', function (event) {
-  event.notification.close();
+self.addEventListener('activate', (event) => {
+  console.log('✅ Service Worker activated');
+});
 
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
-      for (const client of clientList) {
-        if ('focus' in client) return client.focus();
-      }
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      return (
+        cached ||
+        fetch(event.request).catch(() => {
+          // Fallback untuk gambar
+          if (event.request.destination === 'image') {
+            return caches.match('/images/placeholder.png');
+          }
 
-      if (clients.openWindow) {
-        return clients.openWindow(event.notification.data.url);
-      }
-    }),
+          // Fallback untuk halaman navigasi
+          if (event.request.mode === 'navigate') {
+            return caches.match('/offline.html');
+          }
+        })
+      );
+    })
   );
+});
+
+self.addEventListener('push', (event) => {
+  const data = event.data?.json() || { title: 'Notifikasi Baru', body: 'Ada update baru!' };
+  self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: './icons/icon-192.png',
+  });
+});
+
+self.addEventListener('fetch', (event) => {
+  if (event.request.destination === 'image') {
+    event.respondWith(
+      caches.match(event.request).then((res) => {
+        return res || fetch(event.request).catch(() => caches.match('/images/placeholder.png'));
+      })
+    );
+  } else if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/offline.html'))
+    );
+  }
 });
