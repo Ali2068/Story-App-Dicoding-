@@ -1,32 +1,35 @@
-
-const CACHE_NAME = 'galeri-cerita-cache-v1';
-const PRECACHE_ASSETS = [
+const CACHE_NAME = 'app-shell-cache-v1';
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './main.css',
   './app.bundle.js',
+  './main.css',
+  './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',
-  './manifest.json'
+  './images/logo.png',
 ];
 
-self.addEventListener('install', (event) => {
+// Install Event - Precaching Aset
+self.addEventListener('install', event => {
   console.log('Service Worker installed');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
   );
+  self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+// Activate Event
+self.addEventListener('activate', event => {
   console.log('Service Worker activated');
   event.waitUntil(
-    caches.keys().then((cacheNames) =>
+    caches.keys().then(keyList =>
       Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
+        keyList.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
           }
         })
       )
@@ -34,18 +37,25 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-self.addEventListener('fetch', (event) => {
+// Fetch Event
+self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      return cachedResponse || fetch(event.request);
+    caches.match(event.request).then(response => {
+      return (
+        response ||
+        fetch(event.request).catch(() => {
+          // Optional: handle fallback here (e.g., offline page or default image)
+        })
+      );
     })
   );
 });
 
-self.addEventListener('push', (event) => {
-  const data = event.data?.json() || { title: "Push Notification" };
+// Push Notification Event
+self.addEventListener('push', event => {
+  const data = event.data?.json() || { title: 'Push Notification' };
   self.registration.showNotification(data.title, {
-    body: data.body || "Notifikasi dari aplikasi Galeri Cerita!",
-    icon: "./icons/icon-192.png"
+    body: data.body || 'Notifikasi dari aplikasi Galeri Cerita!',
+    icon: './icons/icon-192.png',
   });
 });
