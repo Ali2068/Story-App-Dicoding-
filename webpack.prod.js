@@ -23,7 +23,9 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: { loader: 'babel-loader' },
+        use: {
+          loader: 'babel-loader',
+        },
       },
       {
         test: /\.css$/i,
@@ -46,21 +48,17 @@ module.exports = {
     new MiniCssExtractPlugin(),
     new CopyWebpackPlugin({
       patterns: [
+        { from: 'src/scripts/sw-custom.js', to: 'sw-custom.js' },
         { from: 'src/public/icons', to: 'icons' },
         { from: 'src/public/images', to: 'images' },
         { from: 'src/public/manifest.json', to: 'manifest.json' },
-        { from: 'src/public/offline.html', to: 'offline.html' },
-        { from: 'src/public/images/placeholder.png', to: 'images/placeholder.png' },
-        { from: 'src/scripts/sw-custom.js', to: 'sw-custom.js' }, // untuk importScripts
+        { from: 'src/scripts/sw.bundle.js', to: 'sw.bundle.js' },
       ],
     }),
     new WorkboxWebpackPlugin.GenerateSW({
-      swDest: 'sw.bundle.js',
       clientsClaim: true,
       skipWaiting: true,
       importScripts: ['sw-custom.js'],
-      cleanupOutdatedCaches: true,
-      navigateFallback: '/index.html',
       runtimeCaching: [
         {
           urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
@@ -70,9 +68,6 @@ module.exports = {
             expiration: {
               maxEntries: 60,
               maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
             },
           },
         },
