@@ -195,13 +195,17 @@ document.addEventListener('DOMContentLoaded', () => {
   updateNotifButtons();
   
   if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
     navigator.serviceWorker
-      .register('/sw.bundle.js')
-      .then(() => console.log('✅ Service Worker registered successfully'))
-      .catch((err) =>
-        console.error('❌ Service Worker registration failed:', err)
-      );
-  }
+      .register('./sw.bundle.js')
+      .then((reg) => {
+        console.log('✅ Service worker terdaftar:', reg.scope);
+      })
+      .catch((err) => {
+        console.error('❌ Gagal mendaftarkan service worker:', err);
+      });
+  });
+}
 });
 
 // 🧭 Event Routing

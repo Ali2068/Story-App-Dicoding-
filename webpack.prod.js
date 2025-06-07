@@ -52,45 +52,47 @@ module.exports = {
         { from: 'src/public/icons', to: 'icons' },
         { from: 'src/public/images', to: 'images' },
         { from: 'src/public/manifest.json', to: 'manifest.json' },
-        { from: 'src/scripts/sw.bundle.js', to: 'sw.bundle.js' },
       ],
     }),
     new WorkboxWebpackPlugin.GenerateSW({
-      clientsClaim: true,
-      skipWaiting: true,
-      importScripts: ['sw-custom.js'],
-      runtimeCaching: [
-        {
-          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-          handler: 'CacheFirst',
-          options: {
-            cacheName: 'images',
-            expiration: {
-              maxEntries: 60,
-              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
-            },
+    swDest: 'sw.bundle.js',
+    clientsClaim: true,
+    skipWaiting: true,
+    cleanupOutdatedCaches: true,
+    importScripts: ['sw-custom.js'], // Tetap dipertahankan
+    navigateFallback: '/index.html',
+    runtimeCaching: [
+      {
+        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'images',
+          expiration: {
+            maxEntries: 60,
+            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
           },
         },
-        {
-          urlPattern: /^https:\/\/story-api\.dicoding\.dev\/v1\/stories/,
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'stories-api',
-            expiration: {
-              maxEntries: 50,
-              maxAgeSeconds: 24 * 60 * 60, // 1 hari
-            },
+      },
+      {
+        urlPattern: /^https:\/\/story-api\.dicoding\.dev\/v1\/stories/,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'stories-api',
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 24 * 60 * 60, // 1 hari
           },
         },
-        {
-          urlPattern: ({ request }) => request.mode === 'navigate',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'pages',
-            networkTimeoutSeconds: 10,
-          },
+      },
+      {
+        urlPattern: ({ request }) => request.mode === 'navigate',
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'pages',
+          networkTimeoutSeconds: 10,
         },
-      ],
-    }),
+       },
+     ],
+   }),
   ],
 };
