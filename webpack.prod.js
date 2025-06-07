@@ -23,9 +23,7 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-        },
+        use: { loader: 'babel-loader' },
       },
       {
         test: /\.css$/i,
@@ -48,51 +46,56 @@ module.exports = {
     new MiniCssExtractPlugin(),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'src/scripts/sw-custom.js', to: 'sw-custom.js' },
         { from: 'src/public/icons', to: 'icons' },
         { from: 'src/public/images', to: 'images' },
         { from: 'src/public/manifest.json', to: 'manifest.json' },
+        { from: 'src/public/offline.html', to: 'offline.html' },
+        { from: 'src/public/images/placeholder.png', to: 'images/placeholder.png' },
+        { from: 'src/scripts/sw-custom.js', to: 'sw-custom.js' }, // untuk importScripts
       ],
     }),
     new WorkboxWebpackPlugin.GenerateSW({
-    swDest: 'sw.bundle.js',
-    clientsClaim: true,
-    skipWaiting: true,
-    cleanupOutdatedCaches: true,
-    importScripts: ['sw-custom.js'], // Tetap dipertahankan
-    navigateFallback: '/index.html',
-    runtimeCaching: [
-      {
-        urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'images',
-          expiration: {
-            maxEntries: 60,
-            maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
+      swDest: 'sw.bundle.js',
+      clientsClaim: true,
+      skipWaiting: true,
+      importScripts: ['sw-custom.js'],
+      cleanupOutdatedCaches: true,
+      navigateFallback: '/index.html',
+      runtimeCaching: [
+        {
+          urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/,
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'images',
+            expiration: {
+              maxEntries: 60,
+              maxAgeSeconds: 30 * 24 * 60 * 60, // 30 hari
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
           },
         },
-      },
-      {
-        urlPattern: /^https:\/\/story-api\.dicoding\.dev\/v1\/stories/,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'stories-api',
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 24 * 60 * 60, // 1 hari
+        {
+          urlPattern: /^https:\/\/story-api\.dicoding\.dev\/v1\/stories/,
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'stories-api',
+            expiration: {
+              maxEntries: 50,
+              maxAgeSeconds: 24 * 60 * 60, // 1 hari
+            },
           },
         },
-      },
-      {
-        urlPattern: ({ request }) => request.mode === 'navigate',
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'pages',
-          networkTimeoutSeconds: 10,
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'pages',
+            networkTimeoutSeconds: 10,
+          },
         },
-       },
-     ],
-   }),
+      ],
+    }),
   ],
 };
